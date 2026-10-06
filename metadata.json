@@ -1,0 +1,6 @@
+{
+  "name": "TermoSense",
+  "description": "Monitoramento de temperatura e umidade em UBS, AMA e unidades de saúde com alertas em tempo real e relatórios de conformidade sanitária.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
