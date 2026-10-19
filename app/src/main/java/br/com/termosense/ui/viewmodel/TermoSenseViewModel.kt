@@ -149,11 +149,14 @@ class TermoSenseViewModel(application: Application) : AndroidViewModel(applicati
     private val _toastMessage = MutableStateFlow<String?>(null)
     val toastMessage: StateFlow<String?> = _toastMessage.asStateFlow()
 
-    private val _isDarkMode = MutableStateFlow(true)
+    private val appPrefs = application.getSharedPreferences("termosense_app_prefs", android.content.Context.MODE_PRIVATE)
+
+    private val _isDarkMode = MutableStateFlow(appPrefs.getBoolean("is_dark_mode", true))
     val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
 
     fun toggleTheme() {
         _isDarkMode.value = !_isDarkMode.value
+        appPrefs.edit().putBoolean("is_dark_mode", _isDarkMode.value).apply()
         showToast(if (_isDarkMode.value) "Modo Escuro (Telemetria) ativado" else "Modo Claro (Clínico) ativado")
     }
 
@@ -307,14 +310,9 @@ class TermoSenseViewModel(application: Application) : AndroidViewModel(applicati
 
     fun clearTelemetryHistory() {
         viewModelScope.launch {
-            val unit = currentUnit.value
-            if (unit != null) {
-                repository.clearTelemetryByUnit(unit.id)
-                showToast("Histórico do setor ${unit.name} limpo. Aguardando leituras reais do ESP32.")
-            } else {
-                repository.clearEntireTelemetryHistory()
-                showToast("Histórico limpo com sucesso.")
-            }
+            repository.clearEntireTelemetryHistory()
+            repository.clearOfflineCache()
+            showToast("Histórico de telemetria e cache limpos. Pronto para ESP32 real.")
         }
     }
 
@@ -370,20 +368,6 @@ class TermoSenseViewModel(application: Application) : AndroidViewModel(applicati
             } else if (!isAuto) {
                 showToast("O cache Room está 100% em dia. Não há leituras offline pendentes.")
             }
-        }
-    }
-
-    fun simulateOfflineDataCollection(count: Int = 12) {
-        val unit = currentUnit.value ?: return
-        viewModelScope.launch {
-            val generated = repository.simulateOfflineBlackoutData(unit.id, count)
-            showToast("📦 $generated leitura(s) geradas e armazenadas no cache local Room (Simulação de Perda de Sinal).")
-            val logItem = SerialLogItem(
-                "CACHE",
-                "Perda de conexão simulada no setor ${unit.code}. $generated registros alocados na tabela offline_telemetry_cache.",
-                "WARN"
-            )
-            _serialLogs.value = (_serialLogs.value.takeLast(30) + logItem)
         }
     }
 
@@ -636,6 +620,13 @@ class TermoSenseViewModel(application: Application) : AndroidViewModel(applicati
             repository.addNewDevice(device)
             _showNewDeviceDialog.value = false
             showToast("Módulo ESP32 '$name' cadastrado com sucesso!")
+        }
+    }
+
+    fun deleteDevice(device: DeviceNodeEntity) {
+        viewModelScope.launch {
+            repository.deleteDevice(device)
+            showToast("Módulo ESP32 '${device.name}' removido com sucesso.")
         }
     }
 

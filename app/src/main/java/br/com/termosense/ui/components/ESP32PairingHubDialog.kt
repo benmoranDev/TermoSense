@@ -938,23 +938,13 @@ fun CalibrationAndDataTab(
                     }
 
                     OutlinedButton(
-                        onClick = { viewModel.simulateOfflineDataCollection(12) },
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(38.dp)
-                    ) {
-                        Icon(Icons.Default.WifiOff, contentDescription = null, modifier = Modifier.size(14.dp))
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text("Simular Queda", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                    }
-
-                    OutlinedButton(
                         onClick = { viewModel.clearOfflineCache() },
                         shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier.height(38.dp)
+                        modifier = Modifier.height(38.dp).weight(1f)
                     ) {
                         Icon(Icons.Default.DeleteSweep, contentDescription = null, modifier = Modifier.size(14.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("Limpar", fontSize = 11.sp)
+                        Text("Limpar Cache", fontSize = 11.sp)
                     }
                 }
             }

@@ -15,6 +15,6 @@ sealed class Screen(
 ) {
     data object AoVivo : Screen("ao_vivo", "Ao Vivo", Icons.Default.Thermostat, 0)
     data object Graficos : Screen("graficos", "Gráficos", Icons.Default.ShowChart, 1)
-    data object Relatorios : Screen("relatorios", "Laudos", Icons.Default.Assessment, 2)
+    data object Relatorios : Screen("relatorios", "Relatórios", Icons.Default.Assessment, 2)
     data object Configuracoes : Screen("configuracoes", "Configurações", Icons.Default.Tune, 3)
 }

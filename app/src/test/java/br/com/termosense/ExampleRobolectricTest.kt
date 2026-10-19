@@ -2,6 +2,7 @@ package com.example
 
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
+import br.com.termosense.R
 import br.com.termosense.data.local.AppDatabase
 import br.com.termosense.data.model.HealthUnitEntity
 import kotlinx.coroutines.runBlocking

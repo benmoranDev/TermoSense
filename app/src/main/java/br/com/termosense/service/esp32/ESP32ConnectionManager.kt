@@ -82,12 +82,30 @@ class ESP32ConnectionManager(
         _serialLogs.value = (_serialLogs.value.takeLast(40) + entry)
     }
 
+    fun hasBluetoothPermissions(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_SCAN) == android.content.pm.PackageManager.PERMISSION_GRANTED &&
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.BLUETOOTH_CONNECT) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        } else {
+            androidx.core.content.ContextCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) == android.content.pm.PackageManager.PERMISSION_GRANTED
+        }
+    }
+
     // =========================================================================
     //  BLUETOOTH LOW ENERGY (BLE) SCANNING & CONNECTION
     // =========================================================================
 
     @SuppressLint("MissingPermission")
     fun startBleScan() {
+        if (!hasBluetoothPermissions()) {
+            log("ERRO: Permissões de Bluetooth/Localização não concedidas.")
+            _connectionState.value = _connectionState.value.copy(
+                status = ConnectionStatus.ERROR,
+                errorMessage = "Permissões de Bluetooth necessárias. Conceda permissão de Scan/Connect."
+            )
+            return
+        }
+
         if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled) {
             log("AVISO: Bluetooth desativado ou indisponível no dispositivo.")
             _connectionState.value = _connectionState.value.copy(
@@ -204,6 +222,15 @@ class ESP32ConnectionManager(
 
     @SuppressLint("MissingPermission")
     fun connectBleDevice(address: String, deviceName: String = "ESP32 TermoSense") {
+        if (!hasBluetoothPermissions()) {
+            log("ERRO: Permissão BLUETOOTH_CONNECT não concedida.")
+            _connectionState.value = _connectionState.value.copy(
+                status = ConnectionStatus.ERROR,
+                errorMessage = "Permissão BLUETOOTH_CONNECT necessária para conectar ao ESP32."
+            )
+            return
+        }
+
         stopBleScan()
         disconnectCurrent()
 

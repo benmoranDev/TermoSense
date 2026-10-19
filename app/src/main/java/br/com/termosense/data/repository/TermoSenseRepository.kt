@@ -14,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
-import java.util.Random
 import kotlin.math.ln
 
 class TermoSenseRepository(
@@ -50,167 +49,8 @@ class TermoSenseRepository(
     fun getUnsyncedCacheCountByUnit(unitId: Long): Flow<Int> = offlineCacheDao.getUnsyncedCountByUnit(unitId)
 
     suspend fun initializeSeedDataIfNeeded() = withContext(Dispatchers.IO) {
-        val existingUnits = unitDao.getAllUnits().firstOrNull()
-        if (existingUnits.isNullOrEmpty()) {
-            val unit1 = HealthUnitEntity(
-                name = "UBS Jardim São Paulo - Sala de Vacinas 01",
-                code = "UBS-JSP-VAC01",
-                profileType = "VACINAS_PNI",
-                minTemp = 2.0,
-                maxTemp = 8.0,
-                minHumidity = 40.0,
-                maxHumidity = 65.0,
-                location = "Bloco B • Câmara Frigorífica PNI",
-                address = "Av. Leôncio de Magalhães, 1200 - Santana, SP",
-                isOfflineMode = false,
-                coolerRelayPin = "GPIO 26",
-                isCoolerActive = true
-            )
-            val unit2 = HealthUnitEntity(
-                name = "AMA Vila Mariana - Farmácia & Termolábeis",
-                code = "AMA-VM-FARM02",
-                profileType = "MEDICAMENTOS",
-                minTemp = 15.0,
-                maxTemp = 25.0,
-                minHumidity = 35.0,
-                maxHumidity = 60.0,
-                location = "Piso Térreo • Armazenamento Central",
-                address = "Rua Domingos de Morais, 2187 - Vila Mariana, SP",
-                isOfflineMode = false,
-                coolerRelayPin = "GPIO 22",
-                isCoolerActive = true
-            )
-            val unit3 = HealthUnitEntity(
-                name = "UBS Central - Hemoteca & Amostras",
-                code = "UBS-CEN-HEMO03",
-                profileType = "HEMODERIVADOS",
-                minTemp = 2.0,
-                maxTemp = 6.0,
-                minHumidity = 45.0,
-                maxHumidity = 65.0,
-                location = "Laboratório • Refrigerador de Sangue",
-                address = "Rua Brigadeiro Tobias, 527 - Centro, SP",
-                isOfflineMode = false,
-                coolerRelayPin = "GPIO 27",
-                isCoolerActive = true
-            )
-            val unit4 = HealthUnitEntity(
-                name = "Data Center Municipal - Rack TI & Sensores",
-                code = "SRV-RACK-01",
-                profileType = "ESTUFA_LAB",
-                minTemp = 20.0,
-                maxTemp = 26.0,
-                minHumidity = 45.0,
-                maxHumidity = 65.0,
-                location = "Sala de Servidores • Rack Principal",
-                address = "Edifício Central - DTI",
-                isOfflineMode = false,
-                coolerRelayPin = "GPIO 26",
-                isCoolerActive = true
-            )
-
-            val u1Id = unitDao.insertUnit(unit1)
-            val u2Id = unitDao.insertUnit(unit2)
-            val u3Id = unitDao.insertUnit(unit3)
-            val u4Id = unitDao.insertUnit(unit4)
-
-            // Devices
-            val d1 = DeviceNodeEntity(
-                unitId = u1Id,
-                name = "ESP32-S3 Câmara Vacinas #01",
-                model = "ESP32-S3",
-                sensorType = "DS18B20",
-                ipAddress = "192.168.1.145",
-                macAddress = "24:6F:28:AB:12:89",
-                samplingRateMs = 2000,
-                currentTemp = 4.8,
-                currentHumidity = 52.0,
-                currentDewPoint = 1.2,
-                vccRail = 3.32,
-                rssi = -54,
-                uptimeString = "18d 04h 12m"
-            )
-            val d2 = DeviceNodeEntity(
-                unitId = u2Id,
-                name = "NodeMCU Farmácia Central",
-                model = "NodeMCU ESP8266",
-                sensorType = "DHT22",
-                ipAddress = "192.168.1.148",
-                macAddress = "50:02:91:D4:56:11",
-                samplingRateMs = 3000,
-                currentTemp = 21.4,
-                currentHumidity = 56.5,
-                currentDewPoint = 12.1,
-                vccRail = 3.30,
-                rssi = -62,
-                uptimeString = "06d 11h 40m"
-            )
-            val d3 = DeviceNodeEntity(
-                unitId = u3Id,
-                name = "ESP32-WROOM Hemoteca #03",
-                model = "ESP32-WROOM-32D",
-                sensorType = "PT100 RTD",
-                ipAddress = "192.168.1.162",
-                macAddress = "AC:67:B2:19:44:88",
-                samplingRateMs = 2000,
-                currentTemp = 3.9,
-                currentHumidity = 50.0,
-                currentDewPoint = 0.8,
-                vccRail = 3.31,
-                rssi = -49,
-                uptimeString = "32d 19h 05m"
-            )
-            val d4 = DeviceNodeEntity(
-                unitId = u4Id,
-                name = "ESP32 Server Rack 01",
-                model = "ESP32-S3",
-                sensorType = "BME280",
-                ipAddress = "192.168.1.199",
-                macAddress = "24:6F:28:AA:99:33",
-                samplingRateMs = 1500,
-                currentTemp = 24.8,
-                currentHumidity = 58.2,
-                currentDewPoint = 16.1,
-                vccRail = 3.32,
-                rssi = -54,
-                uptimeString = "18d 04h 12m"
-            )
-
-            val d1Id = deviceDao.insertDevice(d1)
-            val d2Id = deviceDao.insertDevice(d2)
-            val d3Id = deviceDao.insertDevice(d3)
-            val d4Id = deviceDao.insertDevice(d4)
-
-            // Seed Standard Regulatory Automation Rules (ANVISA / PNI)
-            val rule1 = AutomationRuleEntity(
-                unitId = u1Id,
-                name = "Proteção Térmica Rede de Frio",
-                conditionText = "SE Temp > 7.5°C ou < 2.5°C",
-                actionText = "ENTÃO: Acionar Relé Pino D26 (Cooler/Compressor) + Push Alerta",
-                isEnabled = true,
-                activationsCount = 0,
-                targetType = "RELAY_COOLER"
-            )
-            val rule2 = AutomationRuleEntity(
-                unitId = u1Id,
-                name = "Alerta de Umidade Crítica",
-                conditionText = "SE Umidade > 68% (Risco de Condensação)",
-                actionText = "ENTÃO: Disparar Alarme Sonoro + Notificação Responsável",
-                isEnabled = true,
-                activationsCount = 0,
-                targetType = "ALERT_HUMIDITY"
-            )
-            val rule3 = AutomationRuleEntity(
-                unitId = u1Id,
-                name = "Heartbeat Watchdog ESP32",
-                conditionText = "SE Offline > 60s (Sem ping MQTT/WebSocket)",
-                actionText = "ENTÃO: Sinalizar Queda de Energia / Falha Elétrica",
-                isEnabled = true,
-                activationsCount = 0,
-                targetType = "WATCHDOG_PING"
-            )
-            ruleDao.insertAllRules(listOf(rule1, rule2, rule3))
-        }
+        // Production mode: No fake pre-seeded units or devices.
+        // Database starts empty for real production data collection.
     }
 
     suspend fun recordLiveReading(
@@ -367,6 +207,10 @@ class TermoSenseRepository(
 
     suspend fun addNewDevice(device: DeviceNodeEntity) = withContext(Dispatchers.IO) {
         deviceDao.insertDevice(device)
+    }
+
+    suspend fun deleteDevice(device: DeviceNodeEntity) = withContext(Dispatchers.IO) {
+        deviceDao.deleteDevice(device)
     }
 
     suspend fun updateDeviceSamplingRate(deviceId: Long, rateMs: Long) = withContext(Dispatchers.IO) {
@@ -538,47 +382,6 @@ class TermoSenseRepository(
 
     suspend fun clearOfflineCache() = withContext(Dispatchers.IO) {
         offlineCacheDao.clearAllCache()
-    }
-
-    suspend fun simulateOfflineBlackoutData(unitId: Long, count: Int = 12): Int = withContext(Dispatchers.IO) {
-        val unit = unitDao.getUnitById(unitId) ?: return@withContext 0
-        val dev = deviceDao.getDevicesByUnit(unitId).firstOrNull()?.firstOrNull()
-        val devId = dev?.id ?: 1L
-        val devName = dev?.name ?: "ESP32 Sala de Vacinas"
-
-        val now = System.currentTimeMillis()
-        val list = mutableListOf<OfflineTelemetryCacheEntity>()
-        val rnd = Random()
-
-        // Generate readings spaced 2 minutes apart in the past 24 minutes (simulating disconnected sensor)
-        for (i in count downTo 1) {
-            val readingTime = now - (i * 2 * 60 * 1000L)
-            // Normal fluctuation or slight thermal drift during blackout
-            val baseTemp = (unit.minTemp + unit.maxTemp) / 2.0
-            val temp = Math.round((baseTemp + (rnd.nextDouble() - 0.5) * 1.8) * 10.0) / 10.0
-            val hum = Math.round((50.0 + (rnd.nextDouble() - 0.5) * 8.0) * 10.0) / 10.0
-            val dew = Math.round(calculateDewPoint(temp, hum) * 10.0) / 10.0
-
-            list.add(
-                OfflineTelemetryCacheEntity(
-                    unitId = unitId,
-                    deviceId = devId,
-                    deviceName = devName,
-                    temperature = temp,
-                    humidity = hum,
-                    dewPoint = dew,
-                    vcc = 3.31,
-                    rssi = 0,
-                    isExcursion = temp < unit.minTemp || temp > unit.maxTemp,
-                    capturedAt = readingTime,
-                    isSynced = false,
-                    captureReason = "OFFLINE_SENSOR_STORAGE"
-                )
-            )
-        }
-
-        offlineCacheDao.insertAllCachedReadings(list)
-        return@withContext list.size
     }
 
     private fun calculateDewPoint(temp: Double, humidity: Double): Double {

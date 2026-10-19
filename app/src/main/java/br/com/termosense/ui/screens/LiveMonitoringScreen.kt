@@ -80,11 +80,11 @@ fun LiveMonitoringScreen(
     var unitMenuExpanded by remember { mutableStateOf(false) }
     val isDarkMode by viewModel.isDarkMode.collectAsStateWithLifecycle()
 
-    val currentT = readings.lastOrNull()?.temperature ?: (unit?.minTemp?.plus(2.8) ?: 4.8)
-    val currentH = readings.lastOrNull()?.humidity ?: 52.0
-    val currentDew = readings.lastOrNull()?.dewPoint ?: 1.2
-    val currentVcc = readings.lastOrNull()?.vcc ?: 3.32
-    val currentRssi = readings.lastOrNull()?.rssi ?: -54
+    val currentT = readings.lastOrNull()?.temperature ?: 0.0
+    val currentH = readings.lastOrNull()?.humidity ?: 0.0
+    val currentDew = readings.lastOrNull()?.dewPoint ?: 0.0
+    val currentVcc = readings.lastOrNull()?.vcc ?: 0.0
+    val currentRssi = readings.lastOrNull()?.rssi ?: 0
 
     val isNominal = unit?.let { currentT in it.minTemp..it.maxTemp } ?: true
 
@@ -241,7 +241,8 @@ fun LiveMonitoringScreen(
                     viewModel.selectUnit(device.unitId)
                 },
                 onOpenPairing = { viewModel.openPairingDialog() },
-                onScanBle = { viewModel.startBleScan() }
+                onScanBle = { viewModel.startBleScan() },
+                onAddNewDevice = { viewModel.openNewDeviceDialog() }
             )
         }
 
@@ -252,7 +253,6 @@ fun LiveMonitoringScreen(
                 syncState = syncState,
                 esp32State = esp32ConnectionState,
                 onSyncNow = { viewModel.syncOfflineCache(isAuto = false) },
-                onSimulateOffline = { viewModel.simulateOfflineDataCollection(12) },
                 onOpenCacheDetails = { viewModel.openPairingDialog() }
             )
         }

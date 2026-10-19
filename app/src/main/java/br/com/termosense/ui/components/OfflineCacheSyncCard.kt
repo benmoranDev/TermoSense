@@ -61,7 +61,6 @@ fun OfflineCacheSyncCard(
     syncState: SyncSummaryState,
     esp32State: ESP32ConnectionState,
     onSyncNow: () -> Unit,
-    onSimulateOffline: () -> Unit,
     onOpenCacheDetails: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
@@ -277,27 +276,6 @@ fun OfflineCacheSyncCard(
                             fontWeight = FontWeight.Bold
                         )
                     }
-                }
-
-                // Simulate Offline Disconnection Test Button (For ANVISA audit & verification)
-                OutlinedButton(
-                    onClick = onSimulateOffline,
-                    modifier = Modifier
-                        .height(38.dp)
-                        .testTag("simulate_offline_cache_button"),
-                    shape = RoundedCornerShape(10.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.WifiOff,
-                        contentDescription = null,
-                        modifier = Modifier.size(15.dp)
-                    )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    Text(
-                        text = "Simular Offline",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
                 }
             }
         }

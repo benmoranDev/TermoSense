@@ -96,7 +96,7 @@ fun ComplianceReportScreen(
                     }
                 }
                 Text(
-                    text = "Geração de laudos oficiais mensais, cálculo de MKT e auditoria para Rede de Frio do PNI/SUS.",
+                    text = "Geração de relatórios oficiais mensais, cálculo de MKT e auditoria para Rede de Frio do PNI/SUS.",
                     style = MaterialTheme.typography.bodySmall,
                     color = onSurfaceVariant
                 )
@@ -178,7 +178,7 @@ fun ComplianceReportScreen(
             ) {
                 Icon(Icons.Default.PictureAsPdf, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(modifier = Modifier.size(8.dp))
-                Text("Emitir Novo Laudo Oficial (PDF / CSV)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text("Emitir Novo Relatório Oficial (PDF / CSV)", fontWeight = FontWeight.Bold, fontSize = 15.sp)
             }
         }
 
@@ -193,7 +193,7 @@ fun ComplianceReportScreen(
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         Icon(Icons.Default.Assessment, contentDescription = null, tint = primaryColor, modifier = Modifier.size(20.dp))
                         Text(
-                            text = "Histórico de Laudos Emitidos",
+                            text = "Histórico de Relatórios Emitidos",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = onSurface
                         )
@@ -209,7 +209,7 @@ fun ComplianceReportScreen(
                             .padding(20.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text("Nenhum laudo gerado ainda.", style = MaterialTheme.typography.bodySmall, color = onSurfaceVariant)
+                        Text("Nenhum relatório gerado ainda.", style = MaterialTheme.typography.bodySmall, color = onSurfaceVariant)
                     }
                 } else {
                     reports.forEach { report ->
